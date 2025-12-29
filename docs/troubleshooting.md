@@ -92,3 +92,58 @@ class ScenarioSession:
 - `src/shayde/core/routes.py` - RouteInterceptor implementation
 - `src/shayde/proxy/manager.py` - ProxyManager implementation
 - `src/shayde/core/capture.py` - Working reference implementation
+
+---
+
+## Video Recording with Remote Browser
+
+### Symptoms
+- `video.path()` throws error: "Path is not available when using browserType.connect()"
+- `video.save_as()` hangs or times out
+
+### Root Cause
+
+When using `browserType.connect()` for remote browser (Docker Playwright):
+
+1. **`video.path()` unavailable**: Documented Playwright limitation for remote connections
+2. **`save_as()` deadlock**: This method waits for page close. If called before `context.close()`, it blocks forever
+
+### Correct Implementation
+
+```python
+async def teardown(self) -> None:
+    # 1. Get video reference BEFORE closing context
+    video = self.page.video if self.page else None
+    video_path = self.output_dir / "recording.webm"
+
+    # 2. Close context FIRST (this finalizes the video file)
+    if self.context:
+        await self.context.close()
+
+    # 3. Save video AFTER context is closed
+    if video:
+        await video.save_as(str(video_path))
+```
+
+### Key Points
+
+| Aspect | Incorrect | Correct |
+|--------|-----------|---------|
+| Order | save_as() → close() | close() → save_as() |
+| Path method | video.path() | video.save_as() |
+| record_video_dir | Host path | Container path (`/tmp/...`) |
+
+### Context Setup
+
+```python
+# Use container-internal path (not host path)
+context_options = {
+    "record_video_dir": "/tmp/shayde-videos",  # Inside Docker
+    "record_video_size": {"width": 1920, "height": 1080}
+}
+context = await browser.new_context(**context_options)
+```
+
+### Reference
+- [Playwright Video API](https://playwright.dev/python/docs/api/class-video)
+- `video.save_as()`: Safe to call after page closed, waits for video completion
