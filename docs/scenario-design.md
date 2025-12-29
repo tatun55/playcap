@@ -107,7 +107,7 @@ shayde scenario run scenarios/01-authentication.yaml --stop-on-error
 shayde scenario run scenarios/01-authentication.yaml --part 2
 
 # 出力ディレクトリ指定
-shayde scenario run scenarios/01-authentication.yaml -o storage/screenshots/scenarios
+shayde scenario run scenarios/01-authentication.yaml -o storage/screenshots/e2e
 ```
 
 ### `shayde scenario step <file> <step_id>`
@@ -127,14 +127,14 @@ shayde scenario step scenarios/01-authentication.yaml 2-3 --session session_abc1
 実行結果からレポートを生成。
 
 ```bash
-shayde scenario report storage/screenshots/scenarios/01-authentication_2025-12-29
+shayde scenario report storage/screenshots/e2e/01-authentication_2025-12-29
 # Output: report.md を生成
 ```
 
 ## スクリーンショット出力構造
 
 ```
-storage/screenshots/scenarios/
+storage/screenshots/e2e/
 └── {scenario_id}_{YYYY-MM-DD}/
     ├── part-01_未認証アクセス制御/
     │   ├── step-1-1_管理画面URLにアクセス.png

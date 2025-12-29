@@ -53,15 +53,16 @@ services:
 """
 
 # Platform-specific CSS for font override
+# Noto Sans JP provides full weight coverage (100-900) for Mac-style rendering
 PLATFORM_CSS: Dict[str, str] = {
     "neutral": """
         * {
-            font-family: 'Noto Sans CJK JP', 'Noto Sans JP', sans-serif !important;
+            font-family: 'Noto Sans JP', 'Noto Sans CJK JP', sans-serif !important;
         }
     """,
     "mac": """
         * {
-            font-family: 'Source Han Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif !important;
+            font-family: 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif !important;
         }
     """,
     "windows": """

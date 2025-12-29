@@ -11,15 +11,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Create font directories
-RUN mkdir -p /usr/share/fonts/mac-style /usr/share/fonts/windows-style /usr/share/fonts/custom
+RUN mkdir -p /usr/share/fonts/noto-sans-jp /usr/share/fonts/windows-style /usr/share/fonts/custom
 
-# Download Source Han Sans (Adobe) - Mac-style Japanese font
-# This is similar to Hiragino Sans
-RUN curl -fsSL -o /tmp/source-han-sans.zip \
-    "https://github.com/adobe-fonts/source-han-sans/releases/download/2.004R/SourceHanSansJP.zip" && \
-    unzip -j /tmp/source-han-sans.zip "OTF/Japanese/*.otf" -d /usr/share/fonts/mac-style/ || \
-    unzip -j /tmp/source-han-sans.zip "*.otf" -d /usr/share/fonts/mac-style/ || true && \
-    rm -f /tmp/source-han-sans.zip
+# Download Noto Sans JP (Google Fonts) - All weights 100-900
+# Similar to Hiragino Sans (Mac-style) with complete weight coverage
+RUN curl -fsSL -o /tmp/noto-sans-jp.zip \
+    "https://fonts.google.com/download?family=Noto%20Sans%20JP" && \
+    unzip -o /tmp/noto-sans-jp.zip -d /tmp/noto-sans-jp && \
+    find /tmp/noto-sans-jp -name "*.ttf" -exec cp {} /usr/share/fonts/noto-sans-jp/ \; && \
+    rm -rf /tmp/noto-sans-jp.zip /tmp/noto-sans-jp
 
 # Download BIZ UDGothic - Windows-style Japanese font (free from Google Fonts)
 RUN curl -fsSL -o /tmp/bizudgothic.zip \
@@ -30,8 +30,8 @@ RUN curl -fsSL -o /tmp/bizudgothic.zip \
 # Update font cache
 RUN fc-cache -fv
 
-# Verify fonts are installed
-RUN fc-list | grep -E "(Noto|Source Han|BIZ)" || echo "Some fonts may not be installed"
+# Verify fonts are installed (Noto Sans JP should show weights like Thin, Light, Regular, Bold, Black)
+RUN fc-list | grep -E "(Noto Sans JP|BIZ)" || echo "Some fonts may not be installed"
 
 EXPOSE 3000
 

@@ -23,7 +23,7 @@ class ViewportConfig(BaseModel):
 class FontConfig(BaseModel):
     """Font configuration for platform simulation."""
 
-    platform: PlatformType = "neutral"
+    platform: PlatformType = "mac"
     custom_fonts_dir: Optional[str] = None  # Mount additional fonts
     css_override: Optional[str] = None  # Custom CSS for font-family
 

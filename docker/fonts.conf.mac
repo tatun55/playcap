@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
 <!-- Mac-style font configuration for Shayde -->
+<!-- Uses Noto Sans JP for complete weight coverage (100-900) -->
 <fontconfig>
-  <!-- Japanese sans-serif: Source Han Sans (similar to Hiragino) -->
+  <!-- Japanese sans-serif: Noto Sans JP (similar to Hiragino, full weight range) -->
   <match target="pattern">
     <test name="lang" compare="contains">
       <string>ja</string>
@@ -11,7 +12,7 @@
       <string>sans-serif</string>
     </test>
     <edit name="family" mode="prepend" binding="strong">
-      <string>Source Han Sans JP</string>
+      <string>Noto Sans JP</string>
     </edit>
   </match>
 
@@ -21,26 +22,36 @@
       <string>system-ui</string>
     </test>
     <edit name="family" mode="prepend" binding="strong">
-      <string>Source Han Sans JP</string>
+      <string>Noto Sans JP</string>
     </edit>
   </match>
 
-  <!-- Hiragino aliases -->
+  <!-- Hiragino aliases (Mac compatibility) -->
   <alias>
     <family>Hiragino Sans</family>
-    <prefer><family>Source Han Sans JP</family></prefer>
+    <prefer><family>Noto Sans JP</family></prefer>
   </alias>
   <alias>
     <family>Hiragino Kaku Gothic ProN</family>
-    <prefer><family>Source Han Sans JP</family></prefer>
+    <prefer><family>Noto Sans JP</family></prefer>
   </alias>
   <alias>
     <family>ヒラギノ角ゴ ProN</family>
-    <prefer><family>Source Han Sans JP</family></prefer>
+    <prefer><family>Noto Sans JP</family></prefer>
   </alias>
   <alias>
     <family>ヒラギノ角ゴシック</family>
-    <prefer><family>Source Han Sans JP</family></prefer>
+    <prefer><family>Noto Sans JP</family></prefer>
+  </alias>
+
+  <!-- Source Han Sans aliases (same design lineage) -->
+  <alias>
+    <family>Source Han Sans JP</family>
+    <prefer><family>Noto Sans JP</family></prefer>
+  </alias>
+  <alias>
+    <family>Source Han Sans</family>
+    <prefer><family>Noto Sans JP</family></prefer>
   </alias>
 
   <!-- Default Japanese font -->
@@ -49,7 +60,7 @@
       <string>ja</string>
     </test>
     <edit name="family" mode="append" binding="weak">
-      <string>Source Han Sans JP</string>
+      <string>Noto Sans JP</string>
     </edit>
   </match>
 
