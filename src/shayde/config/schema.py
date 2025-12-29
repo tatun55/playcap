@@ -61,6 +61,7 @@ class OutputConfig(BaseModel):
     """Screenshot output configuration."""
 
     directory: str = "storage/screenshots"
+    scenario_directory: Optional[str] = None  # Scenario output dir (defaults to {directory}/e2e)
     filename_pattern: str = "{name}_{date}_{time}.png"
     date_format: str = "%Y-%m-%d"
     time_format: str = "%H%M%S"

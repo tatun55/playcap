@@ -259,7 +259,10 @@ async def run_scenario(
 
     # Determine output directory
     if not output_dir:
-        output_dir = Path.cwd() / config.output.directory / "e2e"
+        if config.output.scenario_directory:
+            output_dir = Path.cwd() / config.output.scenario_directory
+        else:
+            output_dir = Path.cwd() / config.output.directory / "e2e"
 
     session_output_dir = ScenarioSession.create_output_dir(output_dir, scenario.meta.id)
 
@@ -354,7 +357,10 @@ async def run_single_step(
 
     # Determine output directory
     if not output_dir:
-        output_dir = Path.cwd() / config.output.directory / "e2e"
+        if config.output.scenario_directory:
+            output_dir = Path.cwd() / config.output.scenario_directory
+        else:
+            output_dir = Path.cwd() / config.output.directory / "e2e"
 
     session_output_dir = ScenarioSession.create_output_dir(output_dir, scenario.meta.id)
 

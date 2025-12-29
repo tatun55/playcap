@@ -25,6 +25,12 @@
     </edit>
   </match>
 
+  <!-- Fallback to Source Han Sans if available -->
+  <alias>
+    <family>Noto Sans CJK JP</family>
+    <accept><family>Source Han Sans JP</family></accept>
+  </alias>
+
   <!-- Default Japanese font -->
   <match target="pattern">
     <test name="lang" compare="contains">
