@@ -112,6 +112,7 @@ class ScenarioResult:
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     output_dir: Optional[Path] = None
+    video_path: Optional[Path] = None
 
     @property
     def total_steps(self) -> int:
@@ -146,6 +147,7 @@ class ScenarioResult:
             "started_at": self.started_at.isoformat() if self.started_at else None,
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
             "output_dir": str(self.output_dir) if self.output_dir else None,
+            "video_path": str(self.video_path) if self.video_path else None,
             "parts": [p.to_dict() for p in self.parts],
             "summary": {
                 "total_steps": self.total_steps,

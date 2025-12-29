@@ -44,11 +44,13 @@ class ScenarioSession:
         output_dir: Path,
         browser: "Browser",
         base_url: Optional[str] = None,
+        record_video: bool = False,
     ):
         self.scenario = scenario
         self.output_dir = output_dir
         self.browser = browser
         self.base_url = base_url
+        self.record_video = record_video
 
         self.session_id = str(uuid.uuid4())[:8]
         self.current_account: Optional[str] = None
@@ -65,6 +67,7 @@ class ScenarioSession:
         self._current_part_result: Optional[PartResult] = None
         self._proxy_manager: Optional[ProxyManager] = None
         self._platform_css: Optional[str] = None
+        self._video_dir: Optional[Path] = None
 
         # Ensure output directory exists
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -80,7 +83,16 @@ class ScenarioSession:
             await self._proxy_manager.start()
             logger.info(f"Proxy started on port {config.proxy.port}")
 
-        self.context = await self.browser.new_context()
+        # Build context options
+        context_options = {}
+
+        # Video recording (use temp dir in container, save via save_as later)
+        if self.record_video:
+            context_options["record_video_dir"] = "/tmp/shayde-videos"
+            context_options["record_video_size"] = {"width": 1920, "height": 1080}
+            logger.info("Video recording enabled")
+
+        self.context = await self.browser.new_context(**context_options)
         self.page = await self.context.new_page()
 
         # Set up route interception for Docker → host redirection
@@ -95,11 +107,40 @@ class ScenarioSession:
 
     async def teardown(self) -> None:
         """Clean up browser context and proxy."""
+        import asyncio
+
         logger.info(f"Tearing down session {self.session_id}")
+
+        # Get video object reference before closing context
+        video = None
+        video_name = None
+        video_path = None
+        if self.page and self.record_video:
+            video = self.page.video
+            video_name = f"{self.scenario.meta.id}.webm"
+            video_path = self.output_dir / video_name
+
+        # Close context first (this finalizes the video file)
         if self.context:
             await self.context.close()
             self.context = None
             self.page = None
+
+        # Save video after context is closed (save_as waits for page close)
+        if video and video_path:
+            try:
+                logger.info("Saving video...")
+                await asyncio.wait_for(
+                    video.save_as(str(video_path)),
+                    timeout=60.0
+                )
+                self.result.video_path = video_path
+                logger.info(f"Video saved: {video_path}")
+            except asyncio.TimeoutError:
+                logger.warning("Video save timed out after 60s")
+            except Exception as e:
+                logger.warning(f"Failed to save video: {e}")
+
         if self._proxy_manager:
             await self._proxy_manager.stop()
             self._proxy_manager = None

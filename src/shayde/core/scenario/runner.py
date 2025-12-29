@@ -229,6 +229,7 @@ async def run_scenario(
     base_url: Optional[str] = None,
     stop_on_error: bool = False,
     part_filter: Optional[int] = None,
+    record_video: bool = False,
 ) -> ScenarioSession:
     """Run a scenario from YAML file.
 
@@ -238,6 +239,7 @@ async def run_scenario(
         base_url: Base URL for the application
         stop_on_error: Stop on first error
         part_filter: Run only specific part
+        record_video: Record video of execution
 
     Returns:
         ScenarioSession with results
@@ -288,6 +290,7 @@ async def run_scenario(
             output_dir=session_output_dir,
             browser=browser,
             base_url=base_url,
+            record_video=record_video,
         )
 
         # Create runner with progress callbacks

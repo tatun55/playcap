@@ -193,6 +193,9 @@ def run_scenario_cmd(
     base_url: Optional[str] = typer.Option(
         None, "--base-url", "-b", help="Base URL override"
     ),
+    video: bool = typer.Option(
+        False, "--video", "-v", help="Record video of scenario execution"
+    ),
 ):
     """Run all steps in scenario."""
     import asyncio
@@ -208,6 +211,7 @@ def run_scenario_cmd(
             base_url=base_url,
             stop_on_error=stop_on_error,
             part_filter=part,
+            record_video=video,
         ))
 
         # Print summary
@@ -227,6 +231,8 @@ def run_scenario_cmd(
             console.print(f"  Skipped: [yellow]{result.skipped_count}[/yellow]")
         console.print(f"  Duration: {result.duration_ms / 1000:.1f}s")
         console.print(f"  Output: {result.output_dir}")
+        if result.video_path:
+            console.print(f"  🎬 Video: {result.video_path}")
 
         if result.status == StepStatus.FAILED:
             raise typer.Exit(1)

@@ -77,6 +77,13 @@ class CaptureConfig(BaseModel):
     quality: Optional[int] = None
 
 
+class VideoConfig(BaseModel):
+    """Video recording configuration for scenarios."""
+
+    enabled: bool = False
+    size: Optional[Dict[str, int]] = None  # {"width": 1920, "height": 1080}
+
+
 class RegressionConfig(BaseModel):
     """Visual regression settings."""
 
