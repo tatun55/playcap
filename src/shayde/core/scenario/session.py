@@ -30,6 +30,9 @@ logger = logging.getLogger(__name__)
 # JavaScript for mouse cursor and click visualization
 CURSOR_HIGHLIGHT_SCRIPT = """
 (() => {
+    // Skip if already initialized or no body
+    if (document.getElementById('shayde-cursor') || !document.body) return;
+
     // Create cursor element
     const cursor = document.createElement('div');
     cursor.id = 'shayde-cursor';
