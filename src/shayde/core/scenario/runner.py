@@ -264,7 +264,9 @@ async def run_scenario(
         else:
             output_dir = Path.cwd() / config.output.directory / "e2e"
 
-    session_output_dir = ScenarioSession.create_output_dir(output_dir, scenario.meta.id)
+    session_output_dir = ScenarioSession.create_output_dir(
+        output_dir, scenario.meta.id, scenario.meta.title
+    )
 
     # Start Docker and connect to browser
     docker_manager = DockerManager(config)
@@ -362,7 +364,9 @@ async def run_single_step(
         else:
             output_dir = Path.cwd() / config.output.directory / "e2e"
 
-    session_output_dir = ScenarioSession.create_output_dir(output_dir, scenario.meta.id)
+    session_output_dir = ScenarioSession.create_output_dir(
+        output_dir, scenario.meta.id, scenario.meta.title
+    )
 
     # Start Docker and connect to browser
     docker_manager = DockerManager(config)

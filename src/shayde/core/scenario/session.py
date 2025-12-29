@@ -261,25 +261,36 @@ class ScenarioSession:
         return results_path
 
     @classmethod
-    def create_output_dir(cls, base_dir: Path, scenario_id: str) -> Path:
+    def create_output_dir(
+        cls,
+        base_dir: Path,
+        scenario_id: str,
+        title: Optional[str] = None,
+    ) -> Path:
         """Create output directory for scenario.
 
         Args:
             base_dir: Base output directory
             scenario_id: Scenario ID
+            title: Scenario title (optional, for readable directory name)
 
         Returns:
             Path to output directory
         """
-        date_str = datetime.now().strftime("%Y-%m-%d")
-        dir_name = f"{scenario_id}_{date_str}"
+        import shutil
+
+        # Build directory name: {id}_{title} or just {id}
+        if title:
+            safe_title = sanitize_filename(title)
+            dir_name = f"{scenario_id}_{safe_title}"
+        else:
+            dir_name = scenario_id
+
         output_dir = base_dir / dir_name
 
-        # If directory exists, add suffix
+        # Remove existing directory (overwrite mode)
         if output_dir.exists():
-            time_str = datetime.now().strftime("%H%M%S")
-            dir_name = f"{scenario_id}_{date_str}_{time_str}"
-            output_dir = base_dir / dir_name
+            shutil.rmtree(output_dir)
 
         output_dir.mkdir(parents=True, exist_ok=True)
         return output_dir
