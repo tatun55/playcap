@@ -20,6 +20,9 @@ from shayde.core.scenario.models import (
     StepStatus,
 )
 from shayde.core.scenario.parser import Account, Part, Scenario, sanitize_filename
+from shayde.core.routes import create_route_handler
+from shayde.config.loader import load_config
+from shayde.proxy.manager import ProxyManager
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +62,7 @@ class ScenarioSession:
             output_dir=output_dir,
         )
         self._current_part_result: Optional[PartResult] = None
+        self._proxy_manager: Optional[ProxyManager] = None
 
         # Ensure output directory exists
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -66,17 +70,33 @@ class ScenarioSession:
     async def setup(self) -> None:
         """Initialize browser context and page."""
         logger.info(f"Setting up session {self.session_id}")
+
+        # Load config and start proxy if enabled
+        config = load_config()
+        if config.proxy.enabled:
+            self._proxy_manager = ProxyManager(config)
+            await self._proxy_manager.start()
+            logger.info(f"Proxy started on port {config.proxy.port}")
+
         self.context = await self.browser.new_context()
         self.page = await self.context.new_page()
+
+        # Set up route interception for Docker → host redirection
+        route_handler = create_route_handler(config)
+        await self.page.route("**/*", route_handler)
+
         self.result.started_at = datetime.now()
 
     async def teardown(self) -> None:
-        """Clean up browser context."""
+        """Clean up browser context and proxy."""
         logger.info(f"Tearing down session {self.session_id}")
         if self.context:
             await self.context.close()
             self.context = None
             self.page = None
+        if self._proxy_manager:
+            await self._proxy_manager.stop()
+            self._proxy_manager = None
         self.result.completed_at = datetime.now()
 
     async def switch_account(self, account_key: Optional[str]) -> bool:
