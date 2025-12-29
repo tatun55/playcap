@@ -137,6 +137,9 @@ class ScenarioRunner:
                     result.error = action_result.error
                     logger.error(f"Action failed: {action_result.error}")
 
+                # Inject platform CSS after navigation
+                await self.session.inject_platform_css()
+
                 # Handle login action (account switch)
                 if action_result.data and action_result.data.get("account"):
                     account_key = action_result.data["account"]

@@ -23,6 +23,7 @@ from shayde.core.scenario.parser import Account, Part, Scenario, sanitize_filena
 from shayde.core.routes import create_route_handler
 from shayde.config.loader import load_config
 from shayde.proxy.manager import ProxyManager
+from shayde.docker.manager import PLATFORM_CSS
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +64,7 @@ class ScenarioSession:
         )
         self._current_part_result: Optional[PartResult] = None
         self._proxy_manager: Optional[ProxyManager] = None
+        self._platform_css: Optional[str] = None
 
         # Ensure output directory exists
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -84,6 +86,10 @@ class ScenarioSession:
         # Set up route interception for Docker → host redirection
         route_handler = create_route_handler(config)
         await self.page.route("**/*", route_handler)
+
+        # Store platform CSS for injection after navigation
+        self._platform_css = PLATFORM_CSS.get(config.fonts.platform, PLATFORM_CSS["neutral"])
+        logger.info(f"Platform font: {config.fonts.platform}")
 
         self.result.started_at = datetime.now()
 
@@ -163,6 +169,14 @@ class ScenarioSession:
         if not self.page:
             await self.setup()
         return self.page
+
+    async def inject_platform_css(self) -> None:
+        """Inject platform-specific font CSS into the current page.
+
+        Call this after page navigation to apply Mac/Windows fonts.
+        """
+        if self._platform_css and self.page:
+            await self.page.add_style_tag(content=self._platform_css)
 
     def get_screenshot_path(
         self,
