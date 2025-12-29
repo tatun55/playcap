@@ -27,6 +27,72 @@ from shayde.docker.manager import PLATFORM_CSS
 
 logger = logging.getLogger(__name__)
 
+# JavaScript for mouse cursor and click visualization
+CURSOR_HIGHLIGHT_SCRIPT = """
+(() => {
+    // Create cursor element
+    const cursor = document.createElement('div');
+    cursor.id = 'shayde-cursor';
+    cursor.style.cssText = `
+        position: fixed;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ef4444;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 999999;
+        transform: translate(-50%, -50%);
+        transition: transform 0.1s ease;
+    `;
+    document.body.appendChild(cursor);
+
+    // Track mouse movement
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+    });
+
+    // Click ripple effect
+    document.addEventListener('mousedown', (e) => {
+        cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+
+        const ripple = document.createElement('div');
+        ripple.style.cssText = `
+            position: fixed;
+            left: ${e.clientX}px;
+            top: ${e.clientY}px;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #ef4444;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999998;
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            animation: shayde-ripple 0.4s ease-out forwards;
+        `;
+        document.body.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 400);
+    });
+
+    document.addEventListener('mouseup', () => {
+        cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+    });
+
+    // Add ripple animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes shayde-ripple {
+            to {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+"""
+
 
 class ScenarioSession:
     """Manages a scenario execution session.
@@ -220,6 +286,14 @@ class ScenarioSession:
         """
         if self._platform_css and self.page:
             await self.page.add_style_tag(content=self._platform_css)
+
+    async def inject_cursor_highlight(self) -> None:
+        """Inject cursor highlight script for video recording.
+
+        Call this after page navigation to show mouse cursor and click effects.
+        """
+        if self.record_video and self.page:
+            await self.page.evaluate(CURSOR_HIGHLIGHT_SCRIPT)
 
     def get_screenshot_path(
         self,
